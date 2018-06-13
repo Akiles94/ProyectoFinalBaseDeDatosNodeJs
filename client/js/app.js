@@ -8,13 +8,18 @@ class EventManager {
         this.guardarEvento()
     }
 
+    sessionError(){
+      alert('Usuario no ha iniciado sesión') 
+      window.location.href = 'http://localhost:3000/index.html'
+    }
+
     obtenerDataInicial() {
         let url = this.urlBase + "/all"
         $.get(url, (response) => {
-          if(response == "logout" ){              
+          if(response == "logout" ){
             this.sessionError() 
           }else{
-            this.inicializarCalendario(response)
+            this.inicializarCalendario(response) 
           }
         })
     }
@@ -23,7 +28,7 @@ class EventManager {
         let eventId = evento._id 
         $.post('/events/delete/'+eventId, {id: eventId}, (response) => { 
             if(response == "logout"){ 
-              this.sessionError() 
+              this.sessionError()
             }else{
                 $('.calendario').fullCalendar('removeEvents', eventId); 
                 alert(response) 
@@ -33,16 +38,16 @@ class EventManager {
 
     guardarEvento() {
         $('.addButton').on('click', (ev) => {
-            ev.preventDefault()
+            ev.preventDefault() 
             let
-            nombre = $('#titulo').val(),
+            nombre = $('#titulo').val(), 
             start = $('#start_date').val(),
-            title = $('#titulo').val(),
+            title = $('#titulo').val(), 
             end = '',
             start_hour = '',
             end_hour = '';
 
-            if (!$('#allDay').is(':checked')) { 
+            if (!$('#allDay').is(':checked')) {
               if($('#start_hour').val() == "" || $('#end_hour').val() == "" || $('#end_date').val() =="" ){
                 alert("Complete los campos obligatorios para el evento") 
                 return 
@@ -50,11 +55,11 @@ class EventManager {
                 end = $('#end_date').val()
                 start_hour = $('#start_hour').val()
                 end_hour = $('#end_hour').val()
-                start = start + 'T' + start_hour
-                end = end + 'T' + end_hour
+                start = start + 'T' + start_hour 
+                end = end + 'T' + end_hour 
             }
-            let url = this.urlBase + "/new"
-            if (title != "" && start != "") {
+            let url = this.urlBase + "/new" 
+            if (title != "" && start != "") { 
                 let ev = {
                     title: title,
                     start: start,
@@ -64,14 +69,14 @@ class EventManager {
                 $.post(url, ev, (response) => {
                   if(response != "logout"){
                     var newEvent = {
-                        _id:response,
+                        _id:response, 
                         title: title,
                         start: start,
-                        end: end
+                        end: end 
                     }
 
                     $('.calendario').fullCalendar('renderEvent', newEvent)
-                    alert("Evento guardado.")
+                    alert("Evento guardado.") 
                   }
                   else{
                     this.sessionError()
@@ -79,12 +84,12 @@ class EventManager {
                 })
 
             } else {
-                alert("Complete los campos obligatorios para el evento")
+                alert("Complete los campos obligatorios para el evento") 
             }
         })
     }
 
-    iniciarFormulario() {
+    inicializarFormulario() {
         $('#start_date, #titulo, #end_date').val('');
         $('#start_date, #end_date').datepicker({
             dateFormat: "yy-mm-dd"
@@ -109,7 +114,7 @@ class EventManager {
         })
     }
 
-    iniciarCalendario(eventos) {
+    inicializarCalendario(eventos) {
       var d = new Date();
         $('.calendario').fullCalendar({
             header: {
@@ -117,7 +122,7 @@ class EventManager {
                 center: 'title',
                 right: 'month,agendaWeek,basicDay'
             },
-            defaultDate: d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(),
+            defaultDate: d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(), 
             navLinks: true,
             editable: true,
             eventLimit: true,
@@ -150,76 +155,46 @@ class EventManager {
 
         actualizarEvento(evento) {
 
-          if(evento.end === null){
+          if(evento.end === null){ 
             var start = moment(evento.start).format('YYYY-MM-DD'), 
                 url = '/events/update/'+evento._id+'&'+start+'&'+start 
           }else{
-            var start = moment(evento.start).format('YYYY-MM-DD HH:mm:ss'),
+            var start = moment(evento.start).format('YYYY-MM-DD HH:mm:ss'), 
                 end = moment(evento.end).format('YYYY-MM-DD HH:mm:ss'), 
                 url = '/events/update/'+evento._id+'&'+start+'&'+end 
           }
 
             var  data = {
-                  id: evento._id,
+                  id: evento._id, 
                   start: start,
                   end: end 
               }
               $.post(url, data, (response) => { 
                   if(response == "logout" ){
-                    this.sessionError()
+                    this.sessionError() 
                   }else{
-                    alert(response)
+                    alert(response) 
                   }
               })
         }
 
         cerrarSesion(){
-          var url = "/usuarios/logout",
+          var url = "/usuarios/logout", 
               data = ""; 
           $.post(url, data, (response) => {
             if(response == "logout"){
               window.location.href="http://localhost:3000/index.html" 
             }else{
-              alert("Error iniciando sesión")
+              alert("Error inesperado al cerrar sesión") 
             }
           })
         }
+
+
     }
 
-const Manager = new EventManager()
+    const Manager = new EventManager()
 
 $('.logout-container').on('click', function(){
-    Manager.cerrarSesion()
+    Manager.cerrarSesion() 
 })
-
-function showMessage(response){ 
-    $('#message').show('fold').html('<p>'+response+'</p>')
-  }
-
-  verificarUsuarioDemo(); 
-
-  function verificarUsuarioDemo() {
-    $.ajax({
-      url: '/usuarios/josluna',
-      method: 'GET',
-      data: {user:'josluna'},
-      success: function(response) {
-        showMessage(response)
-      }
-    })
-  }
-
-  var nombreUsuario = $('#user')
-  var pass = $('#pass')
-  $('.loginButton').on('click', function(event) {
-    if (nombreUsuario.val() != "" && pass.val() != "") {
-      $.post('/usuarios/login',{user: nombreUsuario.val(), pass: pass.val()}, function(response) {
-        showMessage(response)
-        if (response == "correcto") {
-          window.location.href = "http://localhost:3000/main.html"
-        }
-      })
-    } else {
-      alert("Complete todos los campos")
-    }
-  })

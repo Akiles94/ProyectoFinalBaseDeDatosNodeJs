@@ -3,26 +3,25 @@ const Usuarios = require('./modelUsuarios.js')
 const Eventos = require('./modelEventos.js')
 const Operaciones = require('./crud.js')
 
-
-Router.get('/josluna', function(req, res) {
-  Usuarios.find({user: req.query.user}).count({}, function(err, count) { 
-    if(count>0){ 
-        res.send("Ingrese los datos correctamente")
+Router.get('/demo', function(req, res) {
+  Usuarios.find({user: req.query.user}).count({}, function(err, count) {
+    if(count>0){
+        res.send("Utilice los siguientes datos: </br>usuario: demo | password:123456 </br>usuario: juan | password:123456")
     }else{
-      Eventos.find({}).count({}, function(err, count) { 
-        if(count>0){ 
-          Eventos.remove({},function(err, doc){ 
+      Eventos.find({}).count({}, function(err, count) {
+        if(count>0){
+          Eventos.remove({},function(err, doc){
           if(err){
             console.log(err)
           }else{
-            console.log("reiniciado")
+            console.log("Información de eventos reinicializada") 
           }
         })
       }
     })
       Operaciones.crearUsuarioDemo((error, result) => {
         if(error){
-          res.send(error) 
+          res.send(error)
         }else{
           res.send(result)
         }
@@ -31,27 +30,27 @@ Router.get('/josluna', function(req, res) {
   })
 })
 
-
+//
 Router.post('/login', function(req, res) {
-    let user = req.body.user
+    let user = req.body.user 
     let password = req.body.pass,
     sess = req.session;
     Usuarios.find({user: user}).count({}, function(err, count) {
         if (err) {
             res.status(500)
-            res.json(err)
+            res.json(err) 
         }else{
-          if(count == 1){
-            Usuarios.find({user: user, password: password }).count({}, function(err, count) {
+          if(count == 1){ 
+            Usuarios.find({user: user, password: password }).count({}, function(err, count) { 
                 if (err) {
                     res.status(500)
                     res.json(err)
                 }else{
                   if(count == 1){
                     sess.user = req.body.user;
-                    res.send("Correcto")
+                    res.send("Validado")
                   }else{
-                    res.send("Contraseña incorrecta")
+                    res.send("Contraseña incorrecta") 
                   }
                 }
             })
@@ -63,23 +62,22 @@ Router.post('/login', function(req, res) {
     })
 })
 
-
 Router.post('/logout', function(req, res) {
   req.session.destroy(function(err) {
   if(err) {
-    console.log(err); 
-    res.json(err) 
+    console.log(err);
+    res.json(err)
   } else {
-    req.session = null
-    res.send('logout')
+    req.session = null 
+    res.send('logout') 
     res.end()
   }
   });
 });
 
 Router.all('*', function(req, res) {
-  res.send('Url incorrecta' )
+  res.send('Error al mostrar el recurso solicitado. Por favor verifique la dirección url a la cual desea ingresar' )
   res.end()
 })
 
-module.exports = Router
+module.exports = Router 
